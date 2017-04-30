@@ -21,8 +21,39 @@ $ npm install
 
 ## 認証パターン
 
+Bluemix Cloudant サービス資格情報を cloudant_credentials.json において、読み込んで認証する。これにより、コードと認証情報を分離する事ができる。
+
+~~~
+var cred = require('./cloudant_credentials.json');
+var Cloudant = require('cloudant')
+var cloudant = Cloudant(cred.credentials.url);
+~~~
+
+以下の認証情報の中で、"credentials"の中身が、Bluemix Cludant にサービス資格情報のコピペです。
+
+~~~file:cloudant_credentials.json例
+{
+  "credentials": {
+      "username": "c1d4ea7b-****-****-****-1d60f***1898-bluemix",
+      "password": "****************************************************************",
+      "host": "c1d4ea7b-d310-4dd4-a12d-1d60fc371898-bluemix.cloudant.com",
+      "port": 443,
+      "url": "https://c1d4ea7b-****-****-****-1d60fc371898-bluemix:****************************************************************@c1d4ea7b-d310-4dd4-a12d-1d60fc371898-bluemix.cloudant.com"
+  }
+}
+~~
+
+
+データベースの選択
+
+~~~
+var dbn = "testdb";
+var cdb = cloudant.db.use(dbn);
+~~~
+
+
 ## データベース作成
-ソースコード: c01_create_database.js
+ソースコードは c01_create_database.js です。
 データベース新規作成します。
 
 ~~~
