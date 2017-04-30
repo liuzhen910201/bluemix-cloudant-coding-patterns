@@ -29,9 +29,9 @@ var Cloudant = require('cloudant')
 var cloudant = Cloudant(cred.credentials.url);
 ~~~
 
-以下の認証情報の中で、"credentials"の中身が、Bluemix Cludant にサービス資格情報のコピペです。
+以下の認証情報の中で、"credentials"の中身が、Bluemix Cludant にサービス資格情報のコピペです。下記は、cloudant_credentials.json例です。
 
-~~~file:cloudant_credentials.json例
+~~~
 {
   "credentials": {
       "username": "c1d4ea7b-****-****-****-1d60f***1898-bluemix",
