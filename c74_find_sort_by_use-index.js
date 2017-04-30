@@ -32,7 +32,8 @@ query = {
 	"count",
 	"age"
     ],
-    "sort": [ { "count:number": "desc"}],
+    //"sort": [ { "count:number": "desc"}],
+    "sort": [ { "count": "desc"}],
     "limit": 10,
     "use_index": "_design/index-text"
 }

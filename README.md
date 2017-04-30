@@ -6,13 +6,13 @@ Bluemix Cloudant コーディング パターン サンプルコード
 
 node バージョンは、v4.4.7 で開発とテストを実施しています。
 
-本サンプルコードを自己の環境へコピーする
+本サンプルコードを自己の環境へコピーします。
 
 ~~~
 $ git clone https://github.com/takara9/bluemix-cloudant-coding-patterns
 ~~~
 
-必要なパッケージをインストールする
+必要なパッケージをインストールします。
 
 ~~~
 $ cd bluemix-cloudant-coding-patterns
@@ -21,7 +21,7 @@ $ npm install
 
 ## 認証パターン
 
-Bluemix Cloudant サービス資格情報を cloudant_credentials.json において、読み込んで認証する。これにより、コードと認証情報を分離する事ができる。
+Bluemix Cloudant サービス資格情報を cloudant_credentials.json に配置しておき読み込んで認証します。これにより、コードと認証情報を分離する事ができる様になります。
 
 ~~~
 var cred = require('./cloudant_credentials.json');
@@ -89,7 +89,7 @@ var cdb = cloudant.db.use(dbn);
 
 
 ## インデックス処理パターン
-Cloudantで検索結果をソートする場合、インデックスが必要になります。インデックスにはTEXTとJSON形式の２つの方法があります。
+Cloudantで検索結果をソートする場合、インデックスが必要になります。インデックスにはTEXTとJSON形式の２つの方法がありますので、２つのインデックスの作成パターンを提示します。
 
 ### インデックスのリストのパターン
 作成済みのインデックスをリストします。
@@ -107,20 +107,27 @@ cdb.index(function(err, result) {
 
 
 ### JSON形式のインデックスを設定するパターン
+インデックスを設定するためのデザイン・ドキュメントです。 ddocはオプションでデザイン・ドキュメントの名前を指定するために設定します。省略した場合、Cloudantサーバー側で付与されます。
 
 ~~~
 // JSON インデックス
 var ddoc_name =  "index-json";
 var key = "_design/" + ddoc_name;
 var index = {
-    type: "json", 
+    type: "json",    // <-- デフォルトがJSON形式なので、省略可能です。
     name: "index-1", 
     ddoc: ddoc_name,
     index: {
-	fields: ["count","age"]
+	fields: ["count","age"]  // <-- json形式ではtypeを指摘できません。
     }
 }
+~~~
 
+参考情報:[APIリファレンス Query](https://console.ng.bluemix.net/docs/services/Cloudant/api/cloudant_query.html#creating-an-index)
+
+次のコードは、インデックスを作成するためのコードで、インデックス処理パターンで共通です。 create_index()は、インデックスが存在しない場合とする場合で、重複に同じコードを書かないためのものです。
+
+~~~
 // インデックス作成 (共通)
 function create_index(index_name, callback) {
     cdb.index(index, function(err, response) {
@@ -135,8 +142,10 @@ function create_index(index_name, callback) {
 // インデックスの更新
 cdb.get(key, function(err,data) {
     if (err) {
+        // 新規の場合
 	create_index(index, function(err, response) {});
     } else {
+    　　// 既に同じ _id のインデックスがある場合
 	cdb.destroy(data._id, data._rev, function(err, body, header) {
 	    if (err) {
 		throw err;
@@ -158,13 +167,13 @@ JSON形式からの違いの部分だけを以下に提示します。
 var ddoc_name =  "index-text";
 var key = "_design/" + ddoc_name;
 var index = {
-    "type": "text", 
+    "type": "text",   // <-- ココがtextになります
     "name": "index-2", 
     "ddoc": ddoc_name,
     "index": {
 	"fields": [
-	    { "name": "count", "type": "number" },
-	    { "name": "age",   "type": "number" }
+	    { "name": "count", "type": "number" },　// <-- TEXTインデックスの場合 typeを指定します。
+	    { "name": "age",   "type": "number" }   //  
 	]
     }
 }
@@ -435,7 +444,7 @@ cdb.get(key, function(err,data) {
 ## リストパターン
 
 ### 全データのリストパターン
-データベース内のドキュメントをリストする。
+データベース内のドキュメントをリストします。
 
 ~~~
 cdb.list(function(err, body) {
@@ -480,13 +489,13 @@ cdb.get(key, function(err,data) {
 ## FINDパターン
 
 ### 論理型の項目と一致するドキュメントをリストするパターン
-
+FINDパターンで異なる部分は、検索式だけです。 検索実行のコードは同じものです。
 
 ~~~
 // 検索式
 query = {
     "selector": {
-	"crazy": false
+	"crazy": false   <-- 一致するデータにマッチします。
     },
     "fields": [
 	"_id",
@@ -512,12 +521,13 @@ cdb.find(query,function(err, body) {
 
 
 ### 数値型の項目と一致するドキュメントをリストするパターン
+数値の大小を比較する式は、[APIリファレンス 条件式](https://console.ng.bluemix.net/docs/services/Cloudant/api/cloudant_query.html#condition-operators) にあります。
 
 ~~~
 query = {
     "selector": {
 	"count": {
-	    "$gt": 20
+	    "$gt": 20  <-- 「APIリファレンス 条件式」に利用できるオペレータパターンがあります。
 	}
     },
     "fields": [
@@ -532,12 +542,13 @@ query = {
 ソースコード:[c71_find_select_number.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c71_find_select_number.js)
 
 ### 文字列型の項目と一致するドキュメントをリストするパターン
+文字列に一致させる場合は、項目名と値を設定します。
 
 ~~~
 // 検索式
 query = {
     "selector": {
-	"type": "dog"
+	"type": "dog"　<-- この条件にマッチするものが結果になります。
     },
     "fields": [
 	"_id",
@@ -551,14 +562,15 @@ query = {
 ソースコード:[c72_find_select_string.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c72_find_select_string.js)
 
 
-### 条件にマッチするドキュメントを降順にソートしてリストするパターン
-
+### JSONインデックスでソートするパターン
+この検索式を機能させるには、count, age に関するJSON形式のインデックスが作成されている必要があります。そして、selector の項目に、インデックスの項目を含むことで、ソートに利用できるインデックスが決定されます。 
+JSON形式のインデックスを生成するコードは[c12_create_index_json.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c12_create_index_json.js)です。
 
 ~~~
 // 検索式
 query = {
     "selector": {
-	"count": { "$gt": 0 }
+	"count": { "$gt": 0 }  <-- これにより index が選択されます。
     },
     "fields": [
 	"_id",
@@ -571,9 +583,15 @@ query = {
 }
 ~~~
 
+selectorにインデックス項目が指定されない場合は、_id のインデックスが採用され、期待通りのソートが実行されません。エラーも発生しないため、ソート結果が誤っている事に気づかない場合があり、注意が必要です。
+
+
 ソースコード:[c73_find_sort_by_index_json.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c73_find_sort_by_index_json.js)
 
-### 条件にマッチするドキュメントを降順にソートしてリストする
+
+
+### TEXTインデックスでソートするパターン
+TEXTインデックスを利用する場合、項目の後に型を指定する必要があります。型は数値型 number、文字列型 string、論理型 boolean から指定できます。
 
 ~~~
 query = {
@@ -587,17 +605,24 @@ query = {
 	"count",
 	"age"
     ],
-    "sort": [ { "count:number": "desc"}],
+    "sort": [ { "count:number": "desc"}],  <-- 項目名の後に:number が必須
     "limit": 10,
     "use_index": "_design/index-text"
 }
+~~~
+
+ソート項目に型が指定されない場合は次の様なエラーが発生します。
+
+~~~
+Error: Unknown Error: mango_idx :: {no_usable_index,missing_sort_index}
 ~~~
 
 ソースコード:[c74_find_sort_by_use-index.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c74_find_sort_by_use-index.js)
 
 # SEARCHパターン
 
-##  search用インデックスのためのデザイン・ドキュメントを登録する
+##  search用インデックスの登録パターン
+search()で利用するインデックスを作成するためのデザイン・ドキュメントのパターンです。
 
 ~~~
 // インデクサー
@@ -630,6 +655,7 @@ cdb.insert(ddoc, function (err, result) {
 
 
 ### searchを使って日本語の検索パターン
+前述のパターンで作成したインデックスを利用して検索するパターンです。
 
 ~~~
 // 検索条件
@@ -655,3 +681,4 @@ cdb.search(ddoc_name, index_name, query, function(err, result) {
 ~~~
 
 ソースコード:[c81_search_by_index.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c81_search_by_index.js)
+
