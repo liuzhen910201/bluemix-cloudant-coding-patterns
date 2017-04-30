@@ -1,5 +1,14 @@
 #!/usr/bin/env node
+/*
+  キーを指定してデータを取得する
 
+  コールバックの中で、ネストしてGETを実行
+  実行順序は保証されるが、スループットは良くない
+
+  2017/4/30
+  Maho Takara
+
+*/
 // Cloudantへの接続
 var cred = require('./cloudant_credentials.json');
 var Cloudant = require('cloudant')

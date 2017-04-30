@@ -1,4 +1,11 @@
 #!/usr/bin/env node
+/*
+  JSON形式のインデックスを設定する
+  
+  2017/4/30
+  Maho Takara
+
+*/
 
 // Cloudantへの接続
 var cred = require('./cloudant_credentials.json');

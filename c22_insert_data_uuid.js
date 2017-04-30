@@ -1,4 +1,15 @@
 #!/usr/bin/env node
+/*
+  ループでキーを指定せずデータを挿入する
+  キー(_id)は、Cloudant サーバー側で自動付与される
+
+  コールバックで処理せず、ノンブロッキングで実行するため
+  セッション数が膨大に増えるなどリスクがあるので注意が必要
+
+  2017/4/30
+  Maho Takara
+
+*/
 
 // Cloudantへの接続
 var cred = require('./cloudant_credentials.json');

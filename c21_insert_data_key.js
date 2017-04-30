@@ -1,4 +1,15 @@
 #!/usr/bin/env node
+/*
+  ループでキーを指定してデータを挿入する
+
+  コールバックで処理せず、ノンブロッキングで実行する
+  先行するcdb.insertの終了を待たずに、ループを回して、処理を開始させるため
+  セッション数が膨大に増えるなどリスクがあるので注意が必要
+
+  2017/4/30
+  Maho Takara
+
+*/
 
 // Cloudantへの接続
 var cred = require('./cloudant_credentials.json');

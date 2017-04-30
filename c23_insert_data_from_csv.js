@@ -1,4 +1,14 @@
 #!/usr/bin/env node
+/*
+  CSVファイルを読み込んでデータを挿入する
+
+  cdb.insertをノンブロッキングでループを実行するため
+  Cloudantとの接続数が大きくなり、問題が発生する可能性がある
+
+  2017/4/30
+  Maho Takara
+
+*/
 
 // Cloudantへの接続
 var cred = require('./cloudant_credentials.json');

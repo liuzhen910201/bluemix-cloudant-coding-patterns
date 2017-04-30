@@ -1,4 +1,18 @@
 #!/usr/bin/env node
+/*
+  条件にマッチするドキュメントを降順にソートしてリストする
+
+  このコードが動作するためには、JSON型インデックスを生成する
+  c12_create_index_json.js が実行されている必要がある。
+  もしqueryの中のselector の中身をコメントにすると、ソートが効かなくなる。
+  コメントにした場合_id のインデックスが優先されるため_id の昇順ソートになる。
+  selector に、countの項目を設定する事で、c12_で作成したインデックスを
+  指定する事ができ、本queryのソートが実行できる様になる。
+
+  2017/4/30
+  Maho Takara
+
+*/
 
 // Cloudantへの接続
 var cred = require('./cloudant_credentials.json');
@@ -9,12 +23,6 @@ var cloudant = Cloudant(cred.credentials.url);
 var dbn = "testdb";
 var cdb = cloudant.db.use(dbn);
 
-// このコードが動作するためには、c12_create_index_json.js が実行されている必要がある
-// 
-// もし、selector の中身をコメントにすると、ソートが効かなくなる
-// コメントにした場合_id にインデックスが利用されるため_id の昇順ソートになる
-// selector に、インデックスの項目を設定する事で、インデックスを指定する事ができる。
-//
 query = {
     "selector": {
 	"count": { "$gt": 0 }

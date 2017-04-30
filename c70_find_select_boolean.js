@@ -1,5 +1,11 @@
 #!/usr/bin/env node
+/*
+  論理型の項目と一致するドキュメントをリストする
 
+  2017/4/30
+  Maho Takara
+
+*/
 // Cloudantへの接続
 var cred = require('./cloudant_credentials.json');
 var Cloudant = require('cloudant')

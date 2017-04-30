@@ -1,4 +1,14 @@
 #!/usr/bin/env node
+/*
+  キーを指定してデータを取得する
+
+　asyncを利用して順番にcdb.getを実行
+  順序性は保証されるが、スループットは遅い
+
+  2017/4/30
+  Maho Takara
+
+*/
 
 // Cloudantへの接続
 var cred = require('./cloudant_credentials.json');

@@ -1,5 +1,11 @@
 #!/usr/bin/env node
+/*
+  searchを使って日本語の検索を実行
 
+  2017/4/30
+  Maho Takara
+
+*/
 // Cloudantへの接続
 var cred = require('./cloudant_credentials.json');
 var Cloudant = require('cloudant')
@@ -9,7 +15,7 @@ var cloudant = Cloudant(cred.credentials.url);
 var dbn = "testdb";
 var cdb = cloudant.db.use(dbn);
 
-// SEARCH
+// 検索条件
 ddoc_name = 'index-search';
 index_name = 'pets';
 query = {

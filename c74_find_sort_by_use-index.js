@@ -1,5 +1,14 @@
 #!/usr/bin/env node
+/*
+  条件にマッチするドキュメントを降順にソートしてリストする
 
+  このコードが動作するためには、テキスト型インデックスを作成する
+  c13_create_index_text.js が実行されている必要がある。
+
+  2017/4/30
+  Maho Takara
+
+*/
 // Cloudantへの接続
 var cred = require('./cloudant_credentials.json');
 var Cloudant = require('cloudant')
@@ -9,7 +18,8 @@ var cloudant = Cloudant(cred.credentials.url);
 var dbn = "testdb";
 var cdb = cloudant.db.use(dbn);
 
-// これは、残念さがら動作しない。
+// テキスト・インデックスを利用するためのクエリー
+// 項目名 count の後に :number を付与する事がポイント
 query = {
     "selector": {
 	"count": {

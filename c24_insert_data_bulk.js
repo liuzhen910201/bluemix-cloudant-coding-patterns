@@ -1,4 +1,12 @@
 #!/usr/bin/env node
+/*
+  配列を一度にロードする。
+  大量のデータのロード向きであるが、キー(_id)を指定できないので注意
+
+  2017/4/30
+  Maho Takara
+
+*/
 
 // Cloudantへの接続
 var cred = require('./cloudant_credentials.json');

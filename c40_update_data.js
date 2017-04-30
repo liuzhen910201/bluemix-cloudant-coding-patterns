@@ -1,5 +1,11 @@
 #!/usr/bin/env node
+/*
+  キーを指定してデータを更新する
 
+  2017/4/30
+  Maho Takara
+
+*/
 // Cloudantへの接続
 var cred = require('./cloudant_credentials.json');
 var Cloudant = require('cloudant')
