@@ -61,7 +61,7 @@ cloudant.db.create(dbn, function(err) {
 ソースコード:[c01_create_database.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c01_create_database.js)
 
 
-## データベース削除
+## データベース削除パターン
 データベース名を指定して削除します。
 
 ~~~
@@ -88,10 +88,10 @@ var cdb = cloudant.db.use(dbn);
 ソースコード:[c12_create_index_json.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c12_create_index_json.js)
 
 
-## インデックス
+## インデックス処理パターン
 Cloudantで検索結果をソートする場合、インデックスが必要になります。インデックスにはTEXTとJSON形式の２つの方法があります。
 
-### インデックスのリスト
+### インデックスのリストのパターン
 作成済みのインデックスをリストします。
 
 ~~~
@@ -106,7 +106,7 @@ cdb.index(function(err, result) {
 ソースコード:[c11_list_indexs.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c11_list_indexs.js)
 
 
-### JSON形式のインデックスを設定する
+### JSON形式のインデックスを設定するパターン
 
 ~~~
 // JSON インデックス
@@ -151,7 +151,7 @@ cdb.get(key, function(err,data) {
 ソースコード:[c12_create_index_json.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c12_create_index_json.js)
 
 
-### TEXT形式のインデックスを設定する
+### TEXT形式のインデックスを設定するパターン
 JSON形式からの違いの部分だけを以下に提示します。
 
 ~~~
@@ -173,11 +173,11 @@ var index = {
 [c13_create_index_text.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c13_create_index_text.js)
 
 
-## データ挿入
+## データ挿入パターン
 
 データを挿入する幾つかのパターンを提示します。
 
-### コールバックでネストしながらデータを挿入する
+### コールバックでネストしながらデータを挿入パターン
 以下のコードでは type を _id にセットするため、後の検索が高速になります。また、コールバックの中に次の挿入処理が入っているため、処理の順序が保証されます。
 
 ~~~
@@ -216,7 +216,7 @@ cdb.insert( docs[0], docs[0].type, function(err, body, header) {
 
 ソースコード:[c20_insert_data_nest.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c20_insert_data_nest.js)
 
-##ループでキーを指定してデータを挿入する
+### ループでキーを指定してデータを挿入パターン
 コールバックで処理せず、ノンブロッキングで実行します。これは、先行するcdb.insertの終了を待たずに、ループを回して、処理を開始させるためセッション数が膨大に増えるなどリスクがあるので注意が必要になります。
 
 ~~~
@@ -241,5 +241,175 @@ for(var key in docs) {
 ~~~
 
 ソースコード:[c21_insert_data_key.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c21_insert_data_key.js)
+
+
+### ループでキーを指定せずデータを挿入パターン
+
+ループでキーを指定せずデータを挿入します。キー(_id)は、Cloudant サーバー側で自動付与されるため、ログなどの保存に適しています。コールバックで処理せず、ノンブロッキングで実行するためスループットは向上しますが、セッション数が膨大に増えるなどリスクがあるので注意が必要必要です。
+
+~~~
+//        DATA
+docs = [ { type: "rabbit", crazy: false, count: 10, age: 3, desc: "可愛い兎"},
+ 	 { type: "dog",    crazy: true,  count: 20, age: 3, desc: "大きな犬"},
+	 { type: "mouse",  crazy: false, count: 30, age: 3, desc: "大きな鼠"},
+	 { type: "cat",    crazy: true,  count: 30, age: 4, desc: "可愛い猫"} ]
+
+// データ登録
+for(var key in docs) {
+    console.log("key=%d type=%s ",key, docs[key].type);
+    cdb.insert(docs[key],function(err, body, header) {
+	if (err) {
+	    console.log("err : ", err);
+	    throw err;
+	}
+	console.log('You have inserted', body);
+    });
+}
+~~~
+
+ソースコード:[c22_insert_data_uuid.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c22_insert_data_uuid.js)
+
+### CSVファイルを読み込んでデータを挿入パターン
+CSVファイルを読み込んでデータを挿入します。ヘッダ行の列名を利用してJSON形式のデータを生成します。 cdb.insertをノンブロッキングでループを実行するため、スループットは良くなりますが、Cloudantとの接続数が大きくなり、問題が発生する可能性があります。
+
+~~~
+// CSVファイルの読み取り と データベースへの書き込み
+var inputFile = "data1.csv"
+var csv = require("fast-csv");
+var csvstream = csv.fromPath(inputFile, { headers: true })
+    .on("data", function (row) {
+	//console.log("row ", row);
+	row.count = Number(row.count);
+	row.age = Number(row.age);
+	row.crazy = (row.crazy == "true");
+
+	// INSERT
+	cdb.insert(row,row.type,function(err, body, header) {
+	    if (err) {
+		throw err;
+	    }
+	    console.log('You have inserted', body)
+	});
+    })
+    .on("end", function () {
+        console.log("終了")
+    })
+    .on("error", function (error) {
+        console.log("error : ",error)
+    });
+~~~
+
+ソースコード:[c23_insert_data_from_csv.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c23_insert_data_from_csv.js)
+
+### 配列を一度にロードするパターン
+配列を一度にロードするので、大量のデータを高速でロードできます。キー(_id)はCloudantサーバーが自動で指定するので、データ固有のキー項目を利用する場合は、デザイン・ドキュメントを登録してインデックスを利用する必要があります。
+
+~~~
+//        DATA
+data = [ { type: "rabbit", crazy: false, count: 10, age: 3, desc: "可愛い兎"},
+ 	 { type: "dog",    crazy: true,  count: 20, age: 3, desc: "大きな犬"},
+	 { type: "mouse",  crazy: false, count: 30, age: 3, desc: "大きな鼠"},
+	 { type: "cat",    crazy: true,  count: 30, age: 4, desc: "可愛い猫"} ]
+
+cdb.bulk( {docs:data}, function(err) {
+    if (err) {
+	throw err;
+    }
+    console.log('Inserted all documents');
+});
+~~~
+
+ソースコード:[c24_insert_data_bulk.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c24_insert_data_bulk.js)
+
+## データ取出しパターン
+
+### キー指定でノンブロックで取得パターン
+キーを指定してデータを取得する。ノンブロッキングで実行されるので、前のcdb.getが完了しない内に、次のcdb.getが実行されている、つまり平行してCloudant へ問い合わせが飛んでいるので、セッション数が上限を超えない様に注意が必要です。
+
+~~~
+// データ取り出し
+var keys = ['rabbit','cat','mouse','dog'];
+for (var i = 0; i < keys.length; i++) {
+    cdb.get(keys[i], function(err,data) {
+	console.log("data = ", data);
+    });
+}
+~~~
+
+ソースコード:[c30_get_non-block-mode.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c30_get_non-block-mode.js)
+
+### キー指定でコールバックで取得パターン
+キーを指定してデータを取得する。コールバックの中で、ネストしてGETを実行するため、実行順序は保証されるが、スループットは良くないことを認識しておく必要がある。
+
+~~~
+// コールバック関数に入子にシーケンシャルにコールを行う
+var keys = ['rabbit','cat','mouse','dog'];
+cdb.get(keys[0], function(err,data) {
+    if (err) {
+	throw err
+    }
+    console.log("data = ", data);
+    cdb.get(keys[1], function(err,data) {
+	if (err) {
+	    throw err
+	}
+	console.log("data = ", data);
+	cdb.get(keys[2], function(err,data) {
+	    if (err) {
+		throw err
+	    }
+	    console.log("data = ", data);
+	    cdb.get(keys[3], function(err,data) {
+		if (err) {
+		    throw err
+		}
+		console.log("data = ", data);
+	    });
+	});
+    });
+});	
+~~~
+
+ソースコード:[c31_get_callback.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c31_get_callback.js)
+
+### キー指定でasyncで順序指定で取得パターン
+キーを指定してデータを取得する。asyncを利用して順番にcdb.getを実行する。前のcdb.get()処理が終了して、次のcdb.get()が実行するため順序性は保証されるが、スループットは遅いことを考慮に入れておく必要がある。
+
+~~~
+var async = require('async');
+var keys = ['rabbit','cat','mouse','dog'];
+async.series([
+    function(callback) {
+	cdb.get(keys[0], function(err,data) {
+	    console.log("data = ", data);
+	    callback(null);
+	});
+    },
+    function(callback) {
+	cdb.get(keys[1], function(err,data) {
+	    console.log("data = ", data);
+	    callback(null);
+	});
+    },
+    function(callback) {
+	cdb.get(keys[2], function(err,data) {
+	    console.log("data = ", data);
+	    callback(null);
+	});
+    },
+    function(callback) {
+	cdb.get(keys[3], function(err,data) {
+	    console.log("data = ", data);
+	    callback(null);
+	});
+    }],
+    function(err) {
+	console.log("end");
+    }
+);
+~~~
+
+ソースコード:[c32_get_async.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c32_get_async.js)
+
 
 
