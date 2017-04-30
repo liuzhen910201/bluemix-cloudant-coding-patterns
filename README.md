@@ -64,14 +64,14 @@ cloudant.db.create(dbn, function(err) {
 ## データベース削除
 データベース名を指定して削除します。
 
-~~
+~~~
 var dbn = "testdb";
 cloudant.db.destroy(dbn, function(err) {
     if (err) {
     throw err;
     }
 });
-~~
+~~~
 
 ソースコード:[c02_drop_database.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c02_drop_database.js)
 
