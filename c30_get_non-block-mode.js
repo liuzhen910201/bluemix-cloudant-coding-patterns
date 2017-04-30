@@ -19,8 +19,8 @@ var cloudant = Cloudant(cred.credentials.url);
 // データベース
 var dbn = "testdb";
 var cdb = cloudant.db.use(dbn);
+// データ取り出し
 var keys = ['rabbit','cat','mouse','dog'];
-
 for (var i = 0; i < keys.length; i++) {
     cdb.get(keys[i], function(err,data) {
 	console.log("data = ", data);

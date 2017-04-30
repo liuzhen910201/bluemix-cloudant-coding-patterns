@@ -20,6 +20,7 @@ var cdb = cloudant.db.use(dbn);
 
 // テキスト・インデックスを利用するためのクエリー
 // 項目名 count の後に :number を付与する事がポイント
+// 検索式
 query = {
     "selector": {
 	"count": {

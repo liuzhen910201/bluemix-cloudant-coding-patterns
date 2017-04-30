@@ -20,13 +20,13 @@ var cloudant = Cloudant(cred.credentials.url);
 var dbn = "testdb";
 var cdb = cloudant.db.use(dbn);
 
-//      KEY       DATA
+//        KEY       DATA
 docs = { 'rabbit': { crazy: false, count: 10, age: 3, desc: "可愛い兎"},
  	 'dog':    { crazy: true,  count: 20, age: 3, desc: "大きな犬"},
 	 'mouse':  { crazy: false, count: 30, age: 3, desc: "大きな鼠"},
 	 'cat':    { crazy: true,  count: 30, age: 4, desc: "可愛い猫"}}
 
-
+// データ挿入ループ
 for(var key in docs) {
     console.log("key  = ",key);
     console.log("docs = ",docs[key]);

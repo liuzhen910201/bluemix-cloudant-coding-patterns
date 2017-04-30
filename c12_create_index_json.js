@@ -15,10 +15,10 @@ var cloudant = Cloudant(cred.credentials.url);
 // データベース
 var dbn = "testdb";
 var cdb = cloudant.db.use(dbn);
-var ddoc_name =  "index-json";
-var key = "_design/" + ddoc_name;
 
 // JSON インデックス
+var ddoc_name =  "index-json";
+var key = "_design/" + ddoc_name;
 var index = {
     type: "json", 
     name: "index-1", 

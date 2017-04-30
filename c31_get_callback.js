@@ -17,9 +17,10 @@ var cloudant = Cloudant(cred.credentials.url);
 // データベース
 var dbn = "testdb";
 var cdb = cloudant.db.use(dbn);
-var keys = ['rabbit','cat','mouse','dog'];
+
 
 // コールバック関数に入子にシーケンシャルにコールを行う
+var keys = ['rabbit','cat','mouse','dog'];
 cdb.get(keys[0], function(err,data) {
     if (err) {
 	throw err

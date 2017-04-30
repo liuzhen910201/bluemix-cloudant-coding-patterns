@@ -18,11 +18,11 @@ var cloudant = Cloudant(cred.credentials.url);
 // データベース
 var dbn = "testdb";
 var cdb = cloudant.db.use(dbn);
-var keys = ['rabbit','cat','mouse','dog'];
+
 
 // 非同期処理で順番に実行
 var async = require('async');
-
+var keys = ['rabbit','cat','mouse','dog'];
 async.series([
     function(callback) {
 	cdb.get(keys[0], function(err,data) {

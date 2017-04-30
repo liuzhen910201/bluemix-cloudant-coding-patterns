@@ -23,6 +23,7 @@ var cloudant = Cloudant(cred.credentials.url);
 var dbn = "testdb";
 var cdb = cloudant.db.use(dbn);
 
+// 検索式
 query = {
     "selector": {
 	"count": { "$gt": 0 }

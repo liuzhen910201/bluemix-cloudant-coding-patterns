@@ -22,6 +22,7 @@ query = {
     q:'desc:可愛い'
 };
 
+// SEARCH実行
 cdb.search(ddoc_name, index_name, query, function(err, result) {
     if (err) {
 	throw err;
