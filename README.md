@@ -411,5 +411,247 @@ async.series([
 
 ソースコード:[c32_get_async.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c32_get_async.js)
 
+# 更新パターン
+
+## キーを指定してデータを更新パターン
+キーを指定して更新するパターンです。 登録時にCloudantから自動でキーを生成するのではなく、アプリケーションのキーで登録しておくと、更新処理が高速におこなえる事になります。
+
+~~~
+var key = 'rabbit'
+cdb.get(key, function(err,data) {
+    console.log("Before update = ", data);
+    data.count = data.count + 1;
+    cdb.insert(data,key, function(err, body, header) {
+	if (err) {
+	    throw err;
+	} 
+	console.log("After update = ", body.ok);
+    });
+});
+~~~
+
+ソースコード:[c40_update_data.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c40_update_data.js)
+
+## リストパターン
+
+### 全データのリストパターン
+データベース内のドキュメントをリストする。
+
+~~~
+cdb.list(function(err, body) {
+    if (err) {
+	throw err;
+    }
+    body.rows.forEach(function(doc) {
+	cdb.get(doc.key, function(err,data) {
+	    if (err) {
+		throw err;
+	    }
+	    console.log("key = ", doc.key);
+	    console.log("get = ", data);
+	});
+    })
+});
+~~~
+
+ソースコード:[c50_list_data.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c50_list_data.js)
 
 
+## 削除パターン
+
+### キー指定でデータを削除するパターン
+データを削除するためには、_id と _rev を二つ指定する必要があり、そのために key 指定で _id と _rev を取得して削除します。
+
+~~~
+var key = 'rabbit'
+cdb.get(key, function(err,data) {
+    console.log("data = ", data);
+    cdb.destroy(key, data._rev, function(err, body, header) {
+	if (err) {
+	    throw err;
+	}
+	console.log("deleted = ", key);
+    });
+});
+~~~
+
+ソースコード:[c60_delete_data_by_id.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c60_delete_data_by_id.js)
+
+## FINDパターン
+
+### 論理型の項目と一致するドキュメントをリストするパターン
+
+
+~~~
+// 検索式
+query = {
+    "selector": {
+	"crazy": false
+    },
+    "fields": [
+	"_id",
+	"_rev",
+	"type",
+	"crazy"
+    ]
+}
+
+// 検索実行
+cdb.find(query,function(err, body) {
+    if (err) {
+	throw err;
+    }
+    console.log("Hits:",body.docs.length);
+    for (var i = 0; i < body.docs.length; i++) {
+	console.log(body.docs[i]);
+    }
+});
+~~~
+
+ソースコード:[c70_find_select_boolean.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c70_find_select_boolean.js)
+
+
+### 数値型の項目と一致するドキュメントをリストするパターン
+
+~~~
+query = {
+    "selector": {
+	"count": {
+	    "$gt": 20
+	}
+    },
+    "fields": [
+	"_id",
+	"_rev",
+	"crazy",
+	"count"
+    ]
+}
+~~~
+
+ソースコード:[c71_find_select_number.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c71_find_select_number.js)
+
+### 文字列型の項目と一致するドキュメントをリストするパターン
+
+~~~
+// 検索式
+query = {
+    "selector": {
+	"type": "dog"
+    },
+    "fields": [
+	"_id",
+	"_rev",
+	"crazy",
+	"count"
+    ]
+}
+~~~
+
+ソースコード:[c72_find_select_string.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c72_find_select_string.js)
+
+
+### 条件にマッチするドキュメントを降順にソートしてリストするパターン
+
+
+~~~
+// 検索式
+query = {
+    "selector": {
+	"count": { "$gt": 0 }
+    },
+    "fields": [
+	"_id",
+	"count",
+	"age"
+    ],
+    "sort": [ { "count": "desc"}, 
+	      { "age": "desc"}],
+    "limit": 10
+}
+~~~
+
+ソースコード:[c73_find_sort_by_index_json.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c73_find_sort_by_index_json.js)
+
+### 条件にマッチするドキュメントを降順にソートしてリストする
+
+~~~
+query = {
+    "selector": {
+	"count": {
+	    "$gt" : 0
+	}
+    },
+    "fields": [
+	"_id",
+	"count",
+	"age"
+    ],
+    "sort": [ { "count:number": "desc"}],
+    "limit": 10,
+    "use_index": "_design/index-text"
+}
+~~~
+
+ソースコード:[c74_find_sort_by_use-index.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c74_find_sort_by_use-index.js)
+
+# SEARCHパターン
+
+##  search用インデックスのためのデザイン・ドキュメントを登録する
+
+~~~
+// インデクサー
+var indexer = function(doc) {
+    index("type", doc.type);
+    index("desc", doc.desc);
+}
+
+// デザイン・ドキュメント
+var ddoc = {
+    _id: '_design/index-search',
+    indexes: {
+	pets: {
+	    analyzer: { name: 'standard'},
+	    index   : indexer
+	}	    
+    }
+};
+
+// 登録
+cdb.insert(ddoc, function (err, result) {
+    if (err) {
+	throw err;
+    }
+    console.log('Created design document', result);
+});
+~~~
+
+ソースコード:[c80_search_create_index.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c80_search_create_index.js)
+
+
+### searchを使って日本語の検索パターン
+
+~~~
+// 検索条件
+ddoc_name = 'index-search';
+index_name = 'pets';
+query = {
+    q:'desc:可愛い'
+};
+
+// SEARCH実行
+cdb.search(ddoc_name, index_name, query, function(err, result) {
+    if (err) {
+	throw err;
+    }
+    console.log("Hits:",result.rows.length);
+    for (var i = 0; i < result.rows.length; i++) {
+	// GET
+	cdb.get(result.rows[i].id, function(err,data) {
+	    console.log("data = ", data);
+	});
+    }
+});
+~~~
+
+ソースコード:[c81_search_by_index.js](https://github.com/takara9/bluemix-cloudant-coding-patterns/blob/master/c81_search_by_index.js)
