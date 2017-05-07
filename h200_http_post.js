@@ -1,4 +1,17 @@
 #!/usr/bin/env node
+/*
+  HTTPクライアントからPOSTする
+
+  2017/5/7
+  Maho Takara
+
+  参考URL
+  v4
+  https://nodejs.org/dist/latest-v4.x/docs/api/http.html
+  v6
+  https://nodejs.org/dist/latest-v6.x/docs/api/http.html
+*/
+
 var querystring = require("querystring");
 var http = require("http");
 var StringDecoder = require('string_decoder').StringDecoder;

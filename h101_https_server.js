@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
-  低レベルのウェブサーバーを作る
+  低レベルのHTTPSサーバーを作る
 
   2017/5/6
   Maho Takara
