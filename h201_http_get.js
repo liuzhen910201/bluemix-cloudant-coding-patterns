@@ -22,8 +22,7 @@ var json_data = {
     message: 'Hello World! こんにちは',
     sound: 123
 }
-var text_data = JSON.stringify(json_data);
-var postData = querystring.stringify(json_data);
+var qs_data = querystring.stringify(json_data);
 var options = {
     hostname: '192.155.208.116',
     port: 3000,
@@ -31,7 +30,7 @@ var options = {
     method: 'GET',
     headers: {
 	'Content-Type': 'application/json',
-	'Content-Length': Buffer.byteLength(postData)
+	'Content-Length': Buffer.byteLength(qs_data)
     }
 };
 
@@ -64,6 +63,6 @@ req.on('error', function(e){
   console.log( "エラー発生: ", e.message);
 });
 
-// データ送信(POST)
-req.write(postData);
+// データ送信(GET)
+req.write(qs_data);
 req.end();
