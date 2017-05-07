@@ -11,9 +11,7 @@
   v6
   https://nodejs.org/dist/latest-v6.x/docs/api/http.html
 */
-
 var http = require('http');
-var querystring = require("querystring");
 
 // Webサーバーの作成
 var server = http.createServer();
