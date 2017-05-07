@@ -12,15 +12,11 @@
   https://nodejs.org/dist/latest-v6.x/docs/api/http.html
 */
 
-var https = require('https');
+var http = require('http');
 var querystring = require("querystring");
 
 // Webサーバーの作成
-var options = {
-  key:  fs.readFileSync('../chatbot/lets_encript.key'),
-  cert: fs.readFileSync('../chatbot/lets_encript_fullchain.crt')
-};
-var server = https.createServer(options);
+var server = http.createServer();
 
 // イベントハンドラを登録する
 server.on('request',function(req,res) {
