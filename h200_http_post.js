@@ -23,7 +23,7 @@ var json_data = {
     sound: 123
 }
 var text_data = JSON.stringify(json_data);
-var postData = querystring.stringify(json_data);
+var post_data = querystring.stringify(json_data);
 var options = {
     hostname: '192.155.208.116',
     port: 3000,
@@ -31,7 +31,7 @@ var options = {
     method: 'POST',
     headers: {
 	'Content-Type': 'application/x-www-form-urlencoded',
-	'Content-Length': Buffer.byteLength(postData)
+	'Content-Length': Buffer.byteLength(post_data)
     }
 };
 
@@ -65,5 +65,5 @@ req.on('error', function(e){
 });
 
 // データ送信(POST)
-req.write(postData);
+req.write(post_data);
 req.end();

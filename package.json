@@ -22,6 +22,7 @@
   "homepage": "https://github.com/takara9/bluemix-cloudant-coding-patterns#readme",
   "dependencies": {
     "cloudant": "^1.7.1",
+    "express": "^4.15.2",
     "fast-csv": "^2.4.0"
   }
 }
